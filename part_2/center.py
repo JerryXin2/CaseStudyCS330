@@ -23,25 +23,29 @@ def approach_1(trajectories):
 
 
 def approach_2_simple(trajectories):
-    new_traj = []
-    max = 0
-    for tid, trajectory in trajectories.items():
-        if(len(trajectory) > max):
-            max = len(trajectory)
-    for i in range(max+1):
-        for tid, trajectory in trajectories.items():
-            sumA = 0
-            countA = 0
-            sumB = 0
-            countB = 0
-            if trajectory[i][0] != None:
-                sumA += trajectory[i][0]
-                countA+=1
-            if trajectory[i][1] != None:
-                sumB += trajectory[i][1]
-                countB+=1
-        new_traj.add((sumA/countA, sumB/countB))
-    return new_traj
+    max_len = 0
+
+    for trajectory in trajectories.values:
+        if len(trajectory) > max_len:
+            max_len = len(trajectory)
+    
+    center = []
+
+    for t in range(max_len):
+        x_tot = 0
+        y_tot = 0
+
+        for trajectory in trajectories.values():
+            if t < len(trajectory):
+                x_tot += trajectory[t][0]
+                y_tot += trajectory[t][1]
+        
+        x_center = x_tot/len(trajectories.items())
+        y_center = y_tot/len(trajectories.items())
+
+        center.append((x_center, y_center))
+
+    return center
 
 
 def approach_2_complex(trajectories):
