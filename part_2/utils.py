@@ -3,8 +3,10 @@ import csv
 def distance2(p, q):
     return (p[0] - q[0])**2 + (p[1] - q[1])**2
 
+
 def distance(p, q):
     return distance2(p, q)**0.5
+
 
 def dtw_distance(P, Q):
     n, m = len(P), len(Q)
@@ -40,6 +42,7 @@ def dtw_distance(P, Q):
             dtws[i][j] = min(candidates)
 
     return dtws[n - 1][m - 1]
+
 
 def read_csv(csv_path, tids):
     trajectories = {}
