@@ -1,11 +1,12 @@
-
+import csv
 
 def distance2(p, q):
-    """Returns the square of the Euclidean distance between p and q."""
     return (p[0] - q[0])**2 + (p[1] - q[1])**2
 
+def distance(p, q):
+    return distance2(p, q)**0.5
+
 def dtw_distance(P, Q):
-    """Returns the dynamic time warping of P and Q"""
     n, m = len(P), len(Q)
 
     distances, sizes, dtws = [[0 for i in range(m)] for j in range(n)], [[0 for i in range(m)] for j in range(n)], [[0 for i in range(m)] for j in range(n)]
@@ -38,26 +39,20 @@ def dtw_distance(P, Q):
                 sizes[i][j] = sizes[i - 1][j - 1] + 1
             dtws[i][j] = min(candidates)
 
-    # Traces the optimal path in reverse to find the edges
-    path = []
-    i, j = n - 1, m - 1
-    while i > 0 or j > 0:
-        path.append((i, j))
-        if i == 0:
-            j -= 1
-        elif j == 0:
-            i -= 1
-        else:
-            candidates = [(distances[i][j] + sizes[i - 1][j] * dtws[i - 1][j]) / (sizes[i - 1][j] + 1),
-                          (distances[i][j] + sizes[i][j - 1] * dtws[i][j - 1]) / (sizes[i][j - 1] + 1),
-                          (distances[i][j] + sizes[i - 1][j - 1] * dtws[i - 1][j - 1]) / (sizes[i - 1][j - 1] + 1)]
-            if candidates[0] == min(candidates):
-                i -= 1
-            elif candidates[1] == min(candidates):
-                j -= 1
-            else:
-                i -= 1
-                j -= 1
-    path.append((0, 0))
-
     return dtws[n - 1][m - 1]
+
+def read_csv(csv_path, tids):
+    trajectories = {}
+
+    with open(csv_path) as file:
+        reader = csv.reader(file, delimiter=",")
+
+        next(file)
+        for row in reader:
+            tid = row[0]
+            if tid in tids:
+                if tid not in trajectories:
+                    trajectories[tid] = []
+                trajectories[tid].append((row[1], row[2]))
+
+    return trajectories
