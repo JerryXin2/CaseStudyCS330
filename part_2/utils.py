@@ -44,7 +44,7 @@ def dtw_distance(P, Q):
     return dtws[n - 1][m - 1]
 
 
-def read_csv(csv_path, tids):
+def read_csv(csv_path, tids=None):
     trajectories = {}
 
     with open(csv_path) as file:
@@ -53,9 +53,15 @@ def read_csv(csv_path, tids):
         next(file)
         for row in reader:
             tid = row[0]
-            if tid in tids:
+
+            if tids is None:
                 if tid not in trajectories:
                     trajectories[tid] = []
-                trajectories[tid].append((row[1], row[2]))
+                trajectories[tid].append((float(row[1]), float(row[2])))
+            else:
+                if tid in tids:
+                    if tid not in trajectories:
+                        trajectories[tid] = []
+                    trajectories[tid].append((float(row[1]), float(row[2])))
 
     return trajectories

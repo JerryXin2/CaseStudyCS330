@@ -1,4 +1,5 @@
 import math
+import matplotlib as plt
 
 from utils import dtw_distance, read_csv
 
@@ -25,7 +26,7 @@ def approach_1(trajectories):
 def approach_2_simple(trajectories):
     max_len = 0
 
-    for trajectory in trajectories.values:
+    for trajectory in trajectories.values():
         if len(trajectory) > max_len:
             max_len = len(trajectory)
     
@@ -51,7 +52,7 @@ def approach_2_simple(trajectories):
 def approach_2_complex(trajectories):
     max_len = 0
 
-    for trajectory in trajectories.values:
+    for trajectory in trajectories.values():
         if len(trajectory) > max_len:
             max_len = len(trajectory)
     
@@ -62,7 +63,7 @@ def approach_2_complex(trajectories):
         y_tot = 0
 
         for trajectory in trajectories.values():
-            t_scaled = t * len(trajectory)/max_len
+            t_scaled = t * (len(trajectory) - 1)/(max_len - 1)
             x, y = interpolate(trajectory, t_scaled)
 
             x_tot += x
@@ -80,11 +81,15 @@ def interpolate(trajectory, t):
     t_floor = math.floor(t)
     t_ceil = math.ceil(t)
 
-    x = (trajectory[t_ceil][0] - trajectory[t_floor][0]) * (t - t_floor)
-    y = (trajectory[t_ceil][1] - trajectory[t_floor][1]) * (t - t_floor)
+    x = trajectory[t_floor][0] + (trajectory[t_ceil][0] - trajectory[t_floor][0]) * (t - t_floor)
+    y = trajectory[t_floor][1] + (trajectory[t_ceil][1] - trajectory[t_floor][1]) * (t - t_floor)
 
     return x, y
-            
+
+
+def plot_center(fig_path, trajectories):
+    fig, ax = plt.subplots()
+    
 
 if __name__ == "__main__":
     tids = {
@@ -103,4 +108,5 @@ if __name__ == "__main__":
 
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
+    print(approach_2_simple(trajectories))
     print(approach_2_complex(trajectories))
