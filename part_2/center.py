@@ -24,7 +24,7 @@ def approach_1(trajectories):
     return trajectories[min_tid]
 
 
-def approach_2_simple(trajectories):
+"""def approach_2_simple(trajectories):
     max_len = 0
 
     for trajectory in trajectories.values():
@@ -47,7 +47,7 @@ def approach_2_simple(trajectories):
 
         center.append((x_center, y_center))
 
-    return center
+    return center"""
 
 
 def approach_2_complex(trajectories):
@@ -125,12 +125,12 @@ if __name__ == "__main__":
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
     for epsilon in [0, 0.03, 0.1, 0.3]:
-        simple_trajectories = {tid : ts_greedy(trajectory) for tid, trajectory in trajectories.items()}
+        simple_trajectories = {tid : ts_greedy(trajectory,epsilon) for tid, trajectory in trajectories.items()}
 
-        # center_1 = approach_1(simple_trajectories)
-        center_2 = approach_2_complex(simple_trajectories)
+        center_1 = approach_1(simple_trajectories)
+        center_2 = approach_2_complex(trajectories)
 
-        # simple_trajectories["Approach 1"] = center_1
+        simple_trajectories["Approach 1"] = center_1
         simple_trajectories["Approach 2 Complex"] = center_2
 
         plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
