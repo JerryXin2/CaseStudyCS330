@@ -44,6 +44,48 @@ def dtw_distance(P, Q):
     return dtws[n - 1][m - 1]
 
 
+def calculate_distance(point, segment):
+    a, b = segment
+    segment_length_squared = distance2(a, b)
+
+    if segment_length_squared == 0:
+        return min(distance(point, a), distance(point, b))
+
+    t = ((point[0] - a[0]) * (b[0] - a[0]) + (point[1] - a[1]) * (b[1] - a[1])) / segment_length_squared
+
+    if t < 0:
+        return distance(point, a)
+    elif t > 1:
+        return distance(point, b)
+
+    closest_point = (a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1]))
+
+    return distance(point, closest_point)
+
+
+def ts_greedy(trajectory, epsilon):
+    if epsilon == 0:
+        return trajectory
+
+    ret = []
+    index = 0
+    error = 0
+    for i in range(1, len(trajectory) - 1):
+        distance = calculate_distance(trajectory[i], (trajectory[0], trajectory[-1]))
+        if distance > error:
+            index = i
+            error = distance
+
+    if error >= epsilon:
+        recursion_1 = ts_greedy(trajectory[:index+1], epsilon)[:-1]
+        recursion_2 = ts_greedy(trajectory[index:], epsilon)
+        ret = recursion_1 + recursion_2
+    else:
+        ret = [trajectory[0], trajectory[-1]]
+
+    return ret
+
+
 def read_csv(csv_path, tids=None):
     trajectories = {}
 

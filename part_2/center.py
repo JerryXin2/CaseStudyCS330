@@ -1,7 +1,8 @@
+import os
 import math
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
-from utils import dtw_distance, read_csv
+from utils import dtw_distance, ts_greedy, read_csv
 
 def approach_1(trajectories):
     dtw_dists = {}
@@ -87,9 +88,19 @@ def interpolate(trajectory, t):
     return x, y
 
 
-def plot_center(fig_path, trajectories):
+def plot(fig_path, trajectories):
     fig, ax = plt.subplots()
-    
+
+    for label, trajectory in trajectories.items():
+        x = [t[0] for t in trajectory]
+        y = [t[1] for t in trajectory]
+
+        ax.plot(x, y, label = label)
+    ax.set_title("Task 4: Center Trajectories")
+    ax.legend()
+
+    fig.savefig(fig_path)
+
 
 if __name__ == "__main__":
     tids = {
@@ -106,7 +117,20 @@ if __name__ == "__main__":
         "115-20080707230001",
     }
 
+    if not os.path.exists("./figures"):
+        os.mkdir("./figures")
+    if not os.path.exists("./figures/task_4"):
+        os.mkdir("./figures/task_4")
+
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
-    print(approach_2_simple(trajectories))
-    print(approach_2_complex(trajectories))
+    for epsilon in [0, 0.03, 0.1, 0.3]:
+        simple_trajectories = {tid : ts_greedy(trajectory) for tid, trajectory in trajectories.items()}
+
+        # center_1 = approach_1(simple_trajectories)
+        center_2 = approach_2_complex(simple_trajectories)
+
+        # simple_trajectories["Approach 1"] = center_1
+        simple_trajectories["Approach 2 Complex"] = center_2
+
+        plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
