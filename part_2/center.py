@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from utils import dtw_distance, ts_greedy, read_csv
 
+
 def approach_1(trajectories):
     dtw_dists = {}
 
@@ -88,6 +89,13 @@ def interpolate(trajectory, t):
     return x, y
 
 
+def average_dtw(center, trajectories):
+    total_dtw = 0
+    for trajectory in trajectories.values():
+        total_dtw += dtw_distance(center, trajectory)
+    return total_dtw/len(trajectories.items())
+
+
 def plot(fig_path, trajectories):
     fig, ax = plt.subplots()
 
@@ -125,12 +133,21 @@ if __name__ == "__main__":
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
     for epsilon in [0, 0.03, 0.1, 0.3]:
+        print(f"Computing center trajectories for epsilon = {epsilon}")
+        print("-----------------------------------------------------")
+
         simple_trajectories = {tid : ts_greedy(trajectory,epsilon) for tid, trajectory in trajectories.items()}
 
         center_1 = approach_1(simple_trajectories)
-        center_2 = approach_2_complex(trajectories)
-
         simple_trajectories["Approach 1"] = center_1
-        simple_trajectories["Approach 2 Complex"] = center_2
+        average_1 = average_dtw(center_1, trajectories)
+        print(f"Average distance for Approach 1: {average_1}")
+
+        if epsilon == 0:
+            center_2 = approach_2_complex(simple_trajectories)
+            simple_trajectories["Approach 2"] = center_2
+            average_2 = average_dtw(center_2, trajectories)
+            print(f"Average distance for Approach 2: {average_2}")
 
         plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
+
