@@ -2,7 +2,7 @@ import os
 import math
 import matplotlib.pyplot as plt
 
-from utils import dtw_distance, ts_greedy, read_csv
+from utils import distance, dtw_distance, ts_greedy, read_csv
 
 
 def approach_1(trajectories):
@@ -51,7 +51,7 @@ def approach_1(trajectories):
     return center"""
 
 
-def approach_2_complex(trajectories):
+def approach_2_time(trajectories):
     max_len = 0
 
     for trajectory in trajectories.values():
@@ -79,6 +79,16 @@ def approach_2_complex(trajectories):
     return center
 
 
+def approach_2_distance(trajectories):
+    distances = {}
+    for tid, trajectory in trajectories.items():
+        dist = 0
+        for i in range(1, len(trajectory)):
+            dist += distance(trajectory[i-1], trajectory[i])
+        distances[tid] = dist
+    return distances
+
+
 def interpolate(trajectory, t):
     t_floor = math.floor(t)
     t_ceil = math.ceil(t)
@@ -103,7 +113,7 @@ def plot(fig_path, trajectories):
         x = [t[0] for t in trajectory]
         y = [t[1] for t in trajectory]
 
-        ax.plot(x, y, label = label)
+        ax.plot(x, y, label=label)
     ax.set_title("Task 4: Center Trajectories")
     ax.legend()
 
@@ -132,6 +142,8 @@ if __name__ == "__main__":
 
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
+    # print(approach_2_distance(trajectories))
+
     for epsilon in [0, 0.03, 0.1, 0.3]:
         print(f"Computing center trajectories for epsilon = {epsilon}")
         print("-----------------------------------------------------")
@@ -144,10 +156,12 @@ if __name__ == "__main__":
         print(f"Average distance for Approach 1: {average_1}")
 
         if epsilon == 0:
-            center_2 = approach_2_complex(simple_trajectories)
+            center_2 = approach_2_time(simple_trajectories)
             simple_trajectories["Approach 2"] = center_2
             average_2 = average_dtw(center_2, trajectories)
             print(f"Average distance for Approach 2: {average_2}")
 
         plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
+
+        print("-----------------------------------------------------")
 
