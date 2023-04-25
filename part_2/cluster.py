@@ -16,7 +16,7 @@ def lloyds(trajectories, seed_fn, k, t_max):
     # Run for t_max iterations
     for t in range(t_max):
         # Initialize cost for this iteration
-        costs[t] = 0
+        costs.append(0)
 
         # Array for partitiions
         partitions = [[] for _ in centers]
