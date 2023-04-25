@@ -8,6 +8,16 @@ def distance(p, q):
     return distance2(p, q)**0.5
 
 
+def interpolate(p1, p2, t):
+    x1, y1 = p1
+    x2, y2 = p2
+
+    x = x1 + (x2 - x1) * t
+    y = y1 + (y2 - y1) * t
+
+    return x, y
+
+
 def dtw_distance(P, Q):
     n, m = len(P), len(Q)
 
@@ -41,7 +51,7 @@ def dtw_distance(P, Q):
                 sizes[i][j] = sizes[i - 1][j - 1] + 1
             dtws[i][j] = min(candidates)
 
-    return dtws[n - 1][m - 1]
+    return (dtws[n - 1][m - 1] / sizes[n - 1][m - 1])**0.5
 
 
 def calculate_distance(point, segment):

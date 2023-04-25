@@ -2,7 +2,7 @@ import os
 import math
 import matplotlib.pyplot as plt
 
-from utils import distance, dtw_distance, ts_greedy, read_csv
+from utils import distance, dtw_distance, interpolate, read_csv, ts_greedy
 
 
 def approach_1(trajectories):
@@ -25,78 +25,82 @@ def approach_1(trajectories):
     return trajectories[min_tid]
 
 
-"""def approach_2_simple(trajectories):
-    max_len = 0
-
-    for trajectory in trajectories.values():
-        if len(trajectory) > max_len:
-            max_len = len(trajectory)
-    
-    center = []
-
-    for t in range(max_len):
-        x_tot = 0
-        y_tot = 0
-
-        for trajectory in trajectories.values():
-            if t < len(trajectory):
-                x_tot += trajectory[t][0]
-                y_tot += trajectory[t][1]
-        
-        x_center = x_tot/len(trajectories.items())
-        y_center = y_tot/len(trajectories.items())
-
-        center.append((x_center, y_center))
-
-    return center"""
-
-
 def approach_2_time(trajectories):
     max_len = 0
-
     for trajectory in trajectories.values():
         if len(trajectory) > max_len:
             max_len = len(trajectory)
     
     center = []
+    for trajectory in trajectories.values():
+        values = time_interpolate(trajectory, len(trajectory), max_len)
 
-    for t in range(max_len):
-        x_tot = 0
-        y_tot = 0
-
-        for trajectory in trajectories.values():
-            t_scaled = t * (len(trajectory) - 1)/(max_len - 1)
-            x, y = interpolate(trajectory, t_scaled)
-
-            x_tot += x
-            y_tot += y
-        
-        x_center = x_tot/len(trajectories.items())
-        y_center = y_tot/len(trajectories.items())
-
-        center.append((x_center, y_center))
-
-    return center
+        if not center:
+            center = values
+        else:
+            center = [(center[i][0] + values[i][0], center[i][1] + values[i][1]) for i in range(len(center))]
+            
+    return [(c[0]/len(trajectories.items()), c[1]/len(trajectories.items())) for c in center]
 
 
-def approach_2_distance(trajectories):
+def time_interpolate(trajectory, len, max_len):
+    values = []
+
+    t = 0
+    while t < len - 1:
+        t_floor = math.floor(t)
+        t_ceil = math.ceil(t)
+
+        values.append(interpolate(trajectory[t_floor], trajectory[t_ceil], t - t_floor))
+
+        t += (len - 1)/(max_len - 1)
+
+    values.append(trajectory[-1])
+
+    return values
+
+
+def approach_2_dist(trajectories):
     distances = {}
     for tid, trajectory in trajectories.items():
         dist = 0
         for i in range(1, len(trajectory)):
             dist += distance(trajectory[i-1], trajectory[i])
         distances[tid] = dist
-    return distances
+
+    max_dist = 0
+    for tid in trajectories.keys():
+        if distances[tid] > max_dist:
+            max_dist = distances[tid]
+
+    center = []
+    for tid, trajectory in trajectories.items():
+        values = dist_interpolate(trajectory, distances[tid], max_dist)
+
+        if not center:
+            center = values
+        else:
+            center = [(center[i][0] + values[i][0], center[i][1] + values[i][1]) for i in range(len(center))]
+            
+    return [(c[0]/len(trajectories.items()), c[1]/len(trajectories.items())) for c in center]
 
 
-def interpolate(trajectory, t):
-    t_floor = math.floor(t)
-    t_ceil = math.ceil(t)
+def dist_interpolate(trajectory, dist, max_dist):
+    increment = 0.5
 
-    x = trajectory[t_floor][0] + (trajectory[t_ceil][0] - trajectory[t_floor][0]) * (t - t_floor)
-    y = trajectory[t_floor][1] + (trajectory[t_ceil][1] - trajectory[t_floor][1]) * (t - t_floor)
+    values = []
 
-    return x, y
+    d = 0
+    last_index = 0
+    while d < dist:
+        temp = d
+
+
+        d += increment * dist/max_dist
+
+    
+
+    return values
 
 
 def average_dtw(center, trajectories):
@@ -142,18 +146,16 @@ if __name__ == "__main__":
 
     trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
 
-    # print(approach_2_distance(trajectories))
-
     for epsilon in [0, 0.03, 0.1, 0.3]:
         print(f"Computing center trajectories for epsilon = {epsilon}")
         print("-----------------------------------------------------")
 
         simple_trajectories = {tid : ts_greedy(trajectory,epsilon) for tid, trajectory in trajectories.items()}
 
-        center_1 = approach_1(simple_trajectories)
-        simple_trajectories["Approach 1"] = center_1
-        average_1 = average_dtw(center_1, trajectories)
-        print(f"Average distance for Approach 1: {average_1}")
+        # center_1 = approach_1(simple_trajectories)
+        # simple_trajectories["Approach 1"] = center_1
+        # average_1 = average_dtw(center_1, trajectories)
+        # print(f"Average distance for Approach 1: {average_1}")
 
         if epsilon == 0:
             center_2 = approach_2_time(simple_trajectories)
@@ -161,7 +163,7 @@ if __name__ == "__main__":
             average_2 = average_dtw(center_2, trajectories)
             print(f"Average distance for Approach 2: {average_2}")
 
-        plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
+        # plot(f"./figures/task_4/center_trajectories_{epsilon}.png", simple_trajectories)
 
         print("-----------------------------------------------------")
 
