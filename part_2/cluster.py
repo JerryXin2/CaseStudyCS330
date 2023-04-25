@@ -210,4 +210,3 @@ if __name__ == "__main__":
 
     plot_3("./figures/task_5/", random_avg, proposed_avg)
 
-
