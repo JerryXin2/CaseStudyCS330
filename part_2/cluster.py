@@ -184,3 +184,5 @@ if __name__ == "__main__":
     centers, costs = lloyds(simple_trajectories, proposed_seed, 12, t_max)
     print("Starting plot")
     plot(f"./figures/task_5/center_trajectories_proposed.png", centers)
+
+    plot_1("./figures/task_5/k_cost_average.png", [4, 6, 8, 10, 12], [231.942742, 224.282066, 211.712991, 157.474593, 160.413726], [210.45515, 207.798631, 196.410499, 166.199253, 79.715500])
