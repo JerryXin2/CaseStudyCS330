@@ -176,7 +176,9 @@ if __name__ == "__main__":
 
         print(f"Average {iter}: {proposed_cost[i]/ITERS}")
         print("-----------------------------------------------------")
-    plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_cost, proposed_cost)
+    random_avg = [c/ITERS for c in random_cost]
+    proposed_avg = [c/ITERS for c in proposed_cost]
+    plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_avg, proposed_avg)
 
     random_cost = []
     proposed_cost = []
