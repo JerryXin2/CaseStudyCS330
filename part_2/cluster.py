@@ -3,7 +3,7 @@ import copy
 import random
 import matplotlib.pyplot as plt
 
-from center import approach_2_time
+from center import approach_2
 from utils import dtw_distance, read_csv, ts_greedy
 
 def lloyds(trajectories, seed_fn, k, t_max):
@@ -40,8 +40,12 @@ def lloyds(trajectories, seed_fn, k, t_max):
         # Compute new centers
         new_centers = []
         for partition in partitions:
-            new_center = approach_2_time({tid : trajectories[tid] for tid in partition})
-            new_centers.append(new_center)
+            if partition:
+                new_center = approach_2({tid : trajectories[tid] for tid in partition})
+                new_centers.append(new_center)
+            else:
+                new_center = seed_fn(trajectories)[0]
+                new_centers.append(new_center)
 
         # If the algorithm has converged, stop
         if new_centers == centers:
@@ -54,12 +58,12 @@ def lloyds(trajectories, seed_fn, k, t_max):
     return centers, costs
 
 
-def random_seed(trajectories, k):
+def random_seed(trajectories, k = 1):
     
     return random.sample(list(trajectories.values()), k)
 
 
-def weighted_seed(trajectories, k):
+def proposed_seed(trajectories, k = 1):
     # Array for centers
     seed = []
 
@@ -85,20 +89,61 @@ def weighted_seed(trajectories, k):
 
     return [trajectories[tid] for tid in seed]
 
+
+def plot_1(fig_path, k, random_cost, proposed_cost):
+    fig, ax = plt.subplots()
+
+    ax.plot(k, random_cost, label = "Random Seeding")
+    ax.plot(k, proposed_cost, label = "Proposed Seeding")
+    ax.set_xlabel("k")
+    ax.set_ylabel("cost of clustering")
+    ax.set_title("Task 5: k vs. cost of clustering")
+    ax.legend()
+
+    fig.savefig(fig_path)
+
+
 if __name__ == "__main__":
-    tids = {
-        "115-20080527225031",
-        "115-20080528230807",
-        "115-20080618225237",
-        "115-20080624022857",
-        "115-20080626014331",
-    }
+    if not os.path.exists("./figures"):
+        os.mkdir("./figures")
+    if not os.path.exists("./figures/task_5"):
+        os.mkdir("./figures/task_5")
 
-    trajectories = read_csv("data/geolife-cars-upd8.csv", tids)
+    trajectories = read_csv("data/geolife-cars-upd8.csv")
+    simple_trajectories = {tid : ts_greedy(trajectory, 0.1) for tid, trajectory in trajectories.items()}
 
-    simple_trajectories = {tid : ts_greedy(trajectory, 0.3) for tid, trajectory in trajectories.items()}
+    iters = 3
+    t_max = 100
 
-    print(lloyds(simple_trajectories, weighted_seed, 1, 10))
+    random_cost = []
+    proposed_cost = []
+    for i, k in enumerate([4, 6, 8, 10, 12]):
+        print(f"Running Lloyd's algorithm with random seeding and {k} clusters:")
+        print("-----------------------------------------------------")
 
+        random_cost.append(0)
+        for iter in range(iters):
+            centers, costs = lloyds(simple_trajectories, random_seed, k, t_max)
+            random_cost[i] += costs[-1]
+
+            print(f"Iteration {iter}: {costs[-1]}")
+
+        print(f"Average {iter}: {random_cost[i]/iters}")
+        print("-----------------------------------------------------")
+
+        print(f"Running Lloyd's algorithm with proposed seeding and {k} clusters")
+        print("-----------------------------------------------------")
+
+        proposed_cost.append(0)
+        for iter in range(iters):
+            centers, costs = lloyds(simple_trajectories, proposed_seed, k, t_max)
+            proposed_cost[i] += costs[-1]
+
+            print(f"Iteration {iter}: {costs[-1]}")
+
+        print(f"Average {iter}: {proposed_cost[i]/iters}")
+        print("-----------------------------------------------------")
+
+    plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_cost, proposed_cost)
 
 
