@@ -58,6 +58,8 @@ def lloyds(trajectories, seed_fn, k, t_max):
     return centers, costs
 
 
+
+
 def random_seed(trajectories, k = 1):
     
     return random.sample(list(trajectories.values()), k)
@@ -98,6 +100,32 @@ def plot_1(fig_path, k, random_cost, proposed_cost):
     ax.set_xlabel("k")
     ax.set_ylabel("cost of clustering")
     ax.set_title("Task 5: k vs. cost of clustering")
+    ax.legend()
+
+    fig.savefig(fig_path)
+
+def plot_2(fig_path, k1, k2, random_cost, proposed_cost):
+    fig, ax = plt.subplots()
+
+    ax.plot(k1, random_cost, label = "Random Seeding")
+    ax.plot(k2, proposed_cost, label = "Proposed Seeding")
+    ax.set_xlabel("iteration number")
+    ax.set_ylabel("cost of clustering")
+    ax.set_title("Task 5: iterations vs. cost of clustering")
+    ax.legend()
+
+    fig.savefig(fig_path)
+
+def plot(fig_path, trajectories):
+    fig, ax = plt.subplots()
+    label = 0
+    for trajectory in trajectories:
+        x = [t[0] for t in trajectory]
+        y = [t[1] for t in trajectory]
+
+        ax.plot(x, y, label=label)
+        label += 1
+    ax.set_title("Task 5: Center Trajectories Proposed Seeding")
     ax.legend()
 
     fig.savefig(fig_path)
@@ -146,4 +174,13 @@ if __name__ == "__main__":
 
     plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_cost, proposed_cost)
 
+    centers_proposed, costs_proposed = lloyds(simple_trajectories, proposed_seed, 12, t_max)
+    centers_random, costs_random = lloyds(simple_trajectories, random_seed, 12, t_max)
+    print("starting plot")
+    plot_2("./figures/task_5/k_iter.png", list(range(0,len(costs_random))), list(range(0,len(costs_proposed))), costs_random, costs_proposed)
 
+
+
+    centers, costs = lloyds(simple_trajectories, proposed_seed, 12, t_max)
+    print("Starting plot")
+    plot(f"./figures/task_5/center_trajectories_proposed.png", centers)
