@@ -1,11 +1,11 @@
 import os
-import copy
 import random
 import matplotlib.pyplot as plt
 
 from center import approach_2
 from utils import dtw_distance, read_csv, ts_greedy
 
+"""Returns the k center trajectories and an array of costs for each iteration """
 def lloyds(trajectories, seed_fn, k, t_max):
     # Initialize centers via seeding algorithm
     centers = seed_fn(trajectories, k)
@@ -57,12 +57,12 @@ def lloyds(trajectories, seed_fn, k, t_max):
             
     return centers, costs
 
-
+"""Defines k random center trajectories with a random sample. K is at default 1"""
 def random_seed(trajectories, k = 1):
     
     return random.sample(list(trajectories.values()), k)
 
-
+"""Defines k center trajectories with our proposed method- weighted probabilities by minimum average distance. K is at default 1"""
 def proposed_seed(trajectories, k = 1):
     # Array for centers
     seed = []
@@ -89,7 +89,7 @@ def proposed_seed(trajectories, k = 1):
 
     return [trajectories[tid] for tid in seed]
 
-
+"""Plot function for cost of clustering vs k"""
 def plot_1(fig_path, k, random_cost, proposed_cost):
     fig, ax = plt.subplots()
 
@@ -102,7 +102,7 @@ def plot_1(fig_path, k, random_cost, proposed_cost):
 
     fig.savefig(fig_path)
 
-
+"""Plot function for center trajectories"""
 def plot_2(fig_path, centers):
     fig, ax = plt.subplots()
 
@@ -118,7 +118,7 @@ def plot_2(fig_path, centers):
 
     fig.savefig(fig_path)
 
-
+"""Plot function for costs vs iterations"""
 def plot_3(fig_path, random_cost, proposed_cost):
     fig, ax = plt.subplots()
 
@@ -150,6 +150,8 @@ if __name__ == "__main__":
 
     random_cost = []
     proposed_cost = []
+    """Test Lloyd's algorithm for various k's, and report the cost"""
+    """
     for i, k in enumerate([4, 6, 8, 10, 12]):
         print(f"Running Lloyd's algorithm with random seeding and {k} clusters:")
         print("-----------------------------------------------------")
@@ -178,7 +180,9 @@ if __name__ == "__main__":
         print("-----------------------------------------------------")
     random_avg = [c/ITERS for c in random_cost]
     proposed_avg = [c/ITERS for c in proposed_cost]
-    plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_avg, proposed_avg)
+    plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_avg, proposed_avg)"""
+
+    """With our ideal k-value, k=12, run Lloyd's for our proposed seeding and report the final center trajectories"""
 
     random_cost = []
     proposed_cost = []
@@ -190,7 +194,9 @@ if __name__ == "__main__":
         proposed_cost.append(costs)
 
         if iter == 0:
-            plot_2("./figures/task_5/", centers)
+            plot_2("./figures/task_5/centers.png", centers)
+
+    """With our ideal k-value, k=12, run Lloyd's for our proposed seeding and random seeding and report the costs over iterations"""
 
     max_len = max(len(random_cost[0]), len(random_cost[1]), len(random_cost[2]))
     if len(random_cost[0]) < max_len:
@@ -210,5 +216,4 @@ if __name__ == "__main__":
         proposed_cost[2] + (proposed_cost[2][-1] * (max_len - len(proposed_cost[2])))
     proposed_avg = [(proposed_cost[0][i] + proposed_cost[1][i] + proposed_cost[2][i])/3 for i in range(len(proposed_cost[0]))]
 
-    plot_3("./figures/task_5/", random_avg, proposed_avg)
-
+    plot_3("./figures/task_5/cost.png", random_avg, proposed_avg)
