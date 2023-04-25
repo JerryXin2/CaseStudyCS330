@@ -103,6 +103,34 @@ def plot_1(fig_path, k, random_cost, proposed_cost):
     fig.savefig(fig_path)
 
 
+def plot_2(fig_path, centers):
+    fig, ax = plt.subplots()
+
+    for center in centers:
+        x = [c[0] for c in center]
+        y = [c[1] for c in center]
+
+        ax.plot(x, y)
+    ax.set_title("Task 5: Cluster Centers")
+
+    fig.savefig(fig_path)
+
+
+def plot_3(fig_path, random_cost, proposed_cost):
+    fig, ax = plt.subplots()
+
+    iters = [i + 1 for i in range(max(len(random_cost), len(proposed_cost)))]
+
+    ax.plot(iters, random_cost, label = "Random Seeding")
+    ax.plot(iters, proposed_cost, label = "Proposed Seeding")
+    ax.set_xlabel("iteration")
+    ax.set_ylabel("cost of clustering")
+    ax.set_title("Task 5: iteration number vs. cost of clustering")
+    ax.legend()
+
+    fig.savefig(fig_path)
+
+
 if __name__ == "__main__":
     if not os.path.exists("./figures"):
         os.mkdir("./figures")
@@ -113,7 +141,7 @@ if __name__ == "__main__":
     simple_trajectories = {tid : ts_greedy(trajectory, 0.1) for tid, trajectory in trajectories.items()}
 
     iters = 3
-    t_max = 100
+    t_max = 500
 
     random_cost = []
     proposed_cost = []
@@ -143,7 +171,38 @@ if __name__ == "__main__":
 
         print(f"Average {iter}: {proposed_cost[i]/iters}")
         print("-----------------------------------------------------")
-
     plot_1("./figures/task_5/k_cost.png", [4, 6, 8, 10, 12], random_cost, proposed_cost)
+
+    # random_cost = []
+    # proposed_cost = []
+    # for iter in range(iters):
+    #     centers, costs = lloyds(simple_trajectories, random_seed, K_VALUE, t_max)
+    #     random_cost.append(costs)
+
+    #     centers, costs = lloyds(simple_trajectories, proposed_seed, K_VALUE, t_max)
+    #     proposed_cost.append(costs)
+
+    #     if iter == 0:
+    #         plot_2("./figures/task_5/", centers)
+
+    # max_len = max(len(random_cost[0]), len(random_cost[1]), len(random_cost[2]))
+    # if len(random_cost[0]) < max_len:
+    #     random_cost[0] + (random_cost[0][-1] * (max_len - len(random_cost[0])))
+    # if len(random_cost[1]) < max_len:
+    #     random_cost[1] + (random_cost[1][-1] * (max_len - len(random_cost[1])))   
+    # if len(random_cost[2]) < max_len:
+    #     random_cost[2] + (random_cost[2][-1] * (max_len - len(random_cost[2])))
+    # random_avg = [(random_cost[0][i] + random_cost[1][i] + random_cost[2][i])/3 for i in range(len(random_cost[0]))]
+
+    # max_len = max(len(proposed_cost[0]), len(proposed_cost[1]), len(proposed_cost[2]))
+    # if len(proposed_cost[0]) < max_len:
+    #     proposed_cost[0] + (proposed_cost[0][-1] * (max_len - len(proposed_cost[0])))
+    # if len(proposed_cost[1]) < max_len:
+    #     proposed_cost[1] + (proposed_cost[1][-1] * (max_len - len(proposed_cost[1])))   
+    # if len(proposed_cost[2]) < max_len:
+    #     proposed_cost[2] + (proposed_cost[2][-1] * (max_len - len(proposed_cost[2])))
+    # proposed_avg = [(proposed_cost[0][i] + proposed_cost[1][i] + proposed_cost[2][i])/3 for i in range(len(proposed_cost[0]))]
+
+    # plot_3("./figures/task_5/", random_avg, proposed_avg)
 
 
